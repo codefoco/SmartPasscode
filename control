@@ -1,0 +1,9 @@
+Package: com.codefoco.smartlock
+Name: SmartLock
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: SmartLock make your passcode change every minute.
+Maintainer: Code Foco
+Author: Code Foco (codefoco@gmail.com)
+Section: Tweaks
