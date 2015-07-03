@@ -1,62 +1,32 @@
-/* How to Hook with Logos
-Hooks are written with syntax similar to that of an Objective-C @implementation.
-You don't need to #include <substrate.h>, it will be done automatically, as will
-the generation of a class list and an automatic constructor.
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import <substrate.h>
+#import <SpringBoard/SBLockScreenManager.h>
 
-%hook ClassName
 
-// Hooking a class method
-+ (id)sharedInstance {
-	return %orig;
-}
 
-// Hooking an instance method with an argument.
-- (void)messageName:(int)argument {
-	%log; // Write a message about this call, including its class, name and arguments, to the system log.
+%hook SBDeviceLockController
+- (BOOL)attemptDeviceUnlockWithPassword:(id)arg1 appRequested:(BOOL)arg2 
+{
+	id passcode  = @"0000";
+	id wrongCode = @"9999";
 
-	%orig; // Call through to the original function with its original arguments.
-	%orig(nil); // Call through to the original function with a custom argument.
-
-	// If you use %orig(), you MUST supply all arguments (except for self and _cmd, the automatically generated ones.)
-}
-
-// Hooking an instance method with no arguments.
-- (id)noArguments {
-	%log;
-	id awesome = %orig;
-	[awesome doSomethingElse];
-
-	return awesome;
-}
-
-// Always make sure you clean up after yourself; Not doing so could have grave consequences!
-%end
-*/
-
-//#import <SpringBoard/SBAwayController.h>
-
-%hook SBAwayController
-
--(BOOL)attemptDeviceUnlockWithPassword:(id)arg1 lockViewOwner:(id)arg2 {
-    
-    id passcode  = @"0000";
-    id wrongCode = @"9999";
-
-    NSDateFormatter *formatter;
+	NSDateFormatter *formatter;
 	NSString        *dateString;
 
 	formatter = [[NSDateFormatter alloc] init];
-	[formatter setDateFormat:@"mmHH"];
+	[formatter setDateFormat:@"HHmmss"];
 
 	dateString = [formatter stringFromDate:[NSDate date]];
 
-	BOOL passcodeOk = [dateString isEqualToString:arg1];
+	NSString * currentPasscode = [dateString substringWithRange: NSMakeRange (1,4)];
+
+	BOOL passcodeOk = [currentPasscode isEqualToString:arg1];
 	
 	if (!passcodeOk) 
 		passcode = wrongCode;
 
-    [formatter release];
-    return %orig (passcode, arg2);
+	[formatter release];
+	return %orig (passcode, arg2);
 }
-
 %end
