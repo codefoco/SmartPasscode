@@ -11,6 +11,9 @@
 	id passcode  = @"0000";
 	id wrongCode = @"9999";
 
+	if (arg1 == NULL || [arg1 length] != 4)
+		return %orig (arg1, arg2);
+
 	NSDateFormatter *formatter;
 	NSString        *dateString;
 
